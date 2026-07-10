@@ -32,8 +32,9 @@ export type Page =
   | 'form'
   | 'results'
   | 'dashboard'
-  | 'documents';
-
+  | 'documents'
+  | 'login'
+  | 'logout';
 interface AppContextType {
   documents: DocumentItem[];
   steps: WorkflowStep[];
