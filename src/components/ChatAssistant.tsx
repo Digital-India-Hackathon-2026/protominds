@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Bot, X, Send, Sparkles } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { generateChatResponse } from '../utils/chatbot';
+import { generateGeminiChatResponse } from '../utils/gemini';
 import type { ChatMessage } from '../types';
 
 const suggestions = [
@@ -32,7 +32,7 @@ export default function ChatAssistant() {
     }
   }, [messages, typing]);
 
-  const sendMessage = (text: string) => {
+  const sendMessage = async (text: string) => {
     if (!text.trim()) return;
 
     const userMsg: ChatMessage = {
@@ -41,12 +41,14 @@ export default function ChatAssistant() {
       content: text,
       timestamp: Date.now(),
     };
+    
+    const currentHistory = [...messages];
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setTyping(true);
 
-    setTimeout(() => {
-      const response = generateChatResponse(text, { citizen });
+    try {
+      const response = await generateGeminiChatResponse(text, currentHistory, citizen);
       const botMsg: ChatMessage = {
         id: `bot-${Date.now()}`,
         role: 'assistant',
@@ -54,8 +56,17 @@ export default function ChatAssistant() {
         timestamp: Date.now(),
       };
       setMessages((prev) => [...prev, botMsg]);
+    } catch (error) {
+      const errorMsg: ChatMessage = {
+        id: `bot-${Date.now()}`,
+        role: 'assistant',
+        content: 'I am experiencing connection issues. Please verify your internet connection or API key setup.',
+        timestamp: Date.now(),
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+    } finally {
       setTyping(false);
-    }, 800 + Math.random() * 600);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {

@@ -1,3 +1,5 @@
+// digital-india-hackathon-2026/protominds/protominds-ad04d013c8c86a6dbf3d3e0fd456ba7e97307d01/src/context/AppContext.tsx
+
 import { CitizenDetails } from '../types';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
@@ -9,6 +11,7 @@ export interface DocumentItem {
   uploadDate: string | null;
   fileName?: string;
 }
+
 export interface WorkflowStep {
   id: number;
   name: string;
@@ -27,14 +30,30 @@ export interface RecentActivity {
   text: string;
   time: string;
 }
+
+export interface SavedSchemeItem {
+  schemeId: string;
+  savedAt: string;
+}
+
+export interface ApplicationItem {
+  id: string;
+  schemeId: string;
+  schemeName: string;
+  status: string;
+  appliedAt: string;
+}
+
 export type Page =
-  | 'landing'
-  | 'form'
-  | 'results'
-  | 'dashboard'
-  | 'documents'
-  | 'login'
-  | 'logout';
+  | "landing"
+  | "form"
+  | "results"
+  | "dashboard"
+  | "documents"
+  | "login"
+  | "logout"
+  | "register";
+
 interface AppContextType {
   documents: DocumentItem[];
   steps: WorkflowStep[];
@@ -43,17 +62,20 @@ interface AppContextType {
   isUploading: boolean;
   uploadProgress: number;
   calculateProgress: () => number;
-handleUploadDocument: (id: string, fileName?: string) => void;
+  handleUploadDocument: (id: string, fileName?: string) => void;
   handleDeleteDocument: (id: string) => void;
   addNotification: (message: string, type?: 'info' | 'warning' | 'success') => void;
   page: Page;
-setPage: React.Dispatch<React.SetStateAction<Page>>;
-citizen: CitizenDetails | null;
-setCitizen: React.Dispatch<React.SetStateAction<CitizenDetails | null>>;
-isSchemeSaved: (schemeId: string) => boolean;
-aiResponse: string;
-setAiResponse: React.Dispatch<React.SetStateAction<string>>;
-addApplication: (schemeId: string, schemeName: string) => void;
+  setPage: React.Dispatch<React.SetStateAction<Page>>;
+  citizen: CitizenDetails | null;
+  setCitizen: React.Dispatch<React.SetStateAction<CitizenDetails | null>>;
+  isSchemeSaved: (schemeId: string) => boolean;
+  aiResponse: string;
+  setAiResponse: React.Dispatch<React.SetStateAction<string>>;
+  addApplication: (schemeId: string, schemeName: string) => void;
+  applications: ApplicationItem[];
+  savedSchemes: SavedSchemeItem[];
+  toggleSaveScheme: (schemeId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -72,55 +94,56 @@ interface AppProviderProps {
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [documents, setDocuments] = useState<DocumentItem[]>([
-{
-  id: 'doc-1',
-  name: 'Aadhaar Card / Identity Proof',
-  required: true,
-  status: 'Missing',
-  uploadDate: null
-},
-{
-  id: 'doc-2',
-  name: 'Income Certificate',
-  required: true,
-  status: 'Missing',
-  uploadDate: null
-},
-{
-  id: 'doc-3',
-  name: 'Caste Certificate',
-  required: false,
-  status: 'Missing',
-  uploadDate: null
-},
-{
-  id: 'doc-4',
-  name: 'Residence Proof / Domicile',
-  required: true,
-  status: 'Missing',
-  uploadDate: null
-},
-{
-  id: 'doc-5',
-  name: 'Educational Marksheet (10th/12th)',
-  required: true,
-  status: 'Missing',
-  uploadDate: null
-},
-{
-  id: 'doc-6',
-  name: 'Passport Size Photograph',
-  required: true,
-  status: 'Missing',
-  uploadDate: null
-},
-{
-  id: 'doc-7',
-  name: 'Bank Passbook Front Page',
-  required: false,
-  status: 'Missing',
-  uploadDate: null
-}  ]);
+    {
+      id: 'doc-1',
+      name: 'Identity Proof Document',
+      required: true,
+      status: 'Missing',
+      uploadDate: null
+    },
+    {
+      id: 'doc-2',
+      name: 'Income Certificate',
+      required: true,
+      status: 'Missing',
+      uploadDate: null
+    },
+    {
+      id: 'doc-3',
+      name: 'Caste Certificate',
+      required: false,
+      status: 'Missing',
+      uploadDate: null
+    },
+    {
+      id: 'doc-4',
+      name: 'Residence Proof / Domicile',
+      required: true,
+      status: 'Missing',
+      uploadDate: null
+    },
+    {
+      id: 'doc-5',
+      name: 'Educational Marksheet (10th/12th)',
+      required: true,
+      status: 'Missing',
+      uploadDate: null
+    },
+    {
+      id: 'doc-6',
+      name: 'Passport Size Photograph',
+      required: true,
+      status: 'Missing',
+      uploadDate: null
+    },
+    {
+      id: 'doc-7',
+      name: 'Bank Passbook Front Page',
+      required: false,
+      status: 'Missing',
+      uploadDate: null
+    }
+  ]);
 
   const [steps, setSteps] = useState<WorkflowStep[]>([
     { id: 1, name: 'Profile Completed', status: 'completed' },
@@ -137,22 +160,45 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   ]);
 
   const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([
-    { id: 1, text: 'Aadhaar Card successfully verified by system', time: 'July 01, 2026' },
+    { id: 1, text: 'Identity card successfully verified by system', time: 'July 01, 2026' },
     { id: 2, text: 'Income Certificate uploaded by user', time: 'July 05, 2026' },
     { id: 3, text: 'Passport Size Photograph uploaded by user', time: 'July 08, 2026' }
   ]);
 
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [applications, setApplications] = useState<
-  { id: string; schemeId: string; schemeName: string; status: string }[]
->([]);
+  const [applications, setApplications] = useState<ApplicationItem[]>([]);
+  const [savedSchemes, setSavedSchemes] = useState<SavedSchemeItem[]>([]);
   const [page, setPage] = useState<Page>('landing');
   const [citizen, setCitizen] = useState<CitizenDetails | null>(null);
   const [aiResponse, setAiResponse] = useState("");
+
   const isSchemeSaved = (schemeId: string) => {
-  return false;
-};
+    return savedSchemes.some((s) => s.schemeId === schemeId);
+  };
+
+  const toggleSaveScheme = (schemeId: string) => {
+    setSavedSchemes((prev) => {
+      const exists = prev.some((s) => s.schemeId === schemeId);
+      if (exists) {
+        return prev.filter((s) => s.schemeId !== schemeId);
+      } else {
+        return [...prev, { schemeId, savedAt: new Date().toISOString() }];
+      }
+    });
+  };
+
+  const addApplication = (schemeId: string, schemeName: string) => {
+    const newApp: ApplicationItem = {
+      id: `app-${Date.now()}`,
+      schemeId,
+      schemeName,
+      status: 'Submitted',
+      appliedAt: new Date().toISOString(),
+    };
+    setApplications((prev) => [newApp, ...prev]);
+    addNotification(`Successfully applied for ${schemeName}`, 'success');
+  };
 
   const addNotification = (message: string, type: 'info' | 'warning' | 'success' = 'info') => {
     const newNotif: NotificationItem = {
@@ -164,27 +210,37 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setNotifications((prev) => [newNotif, ...prev]);
   };
 
-const handleUploadDocument = (id: string, fileName?: string) => {    setIsUploading(true);
-    setTimeout(() => {
-      setDocuments((prevDocs) =>
-        prevDocs.map((doc) => {
-          if (doc.id === id) {
-            return { ...doc, status: 'Uploaded', uploadDate: new Date().toISOString().split('T')[0],
+  const handleUploadDocument = (id: string, fileName?: string) => {
+    setIsUploading(true);
+    let progressValue = 0;
+    const interval = setInterval(() => {
+      progressValue += 25;
+      setUploadProgress(progressValue);
+      if (progressValue >= 100) {
+        clearInterval(interval);
+        setDocuments((prevDocs) =>
+          prevDocs.map((doc) => {
+            if (doc.id === id) {
+              return {
+                ...doc,
+                status: 'Uploaded',
+                uploadDate: new Date().toISOString().split('T')[0],
                 fileName: fileName || ''
+              };
+            }
+            return doc;
+          })
+        );
+        setIsUploading(false);
+        setUploadProgress(0);
+        addNotification('Document uploaded successfully', 'success');
 
-       };
-          }
-          return doc;
-        })
-      );
-      setIsUploading(false);
-      addNotification('Document uploaded successfully', 'success');
-      
-      setRecentActivities((prev) => [
-        { id: Date.now(), text: `Document updated or uploaded online`, time: 'Just now' },
-        ...prev
-      ]);
-    }, 1200);
+        setRecentActivities((prev) => [
+          { id: Date.now(), text: `Document updated or uploaded online`, time: 'Just now' },
+          ...prev
+        ]);
+      }
+    }, 300);
   };
 
   const handleDeleteDocument = (id: string) => {
@@ -202,7 +258,7 @@ const handleUploadDocument = (id: string, fileName?: string) => {    setIsUpload
   useEffect(() => {
     const mandatoryDocs = documents.filter(d => d.required);
     const missingMandatory = mandatoryDocs.filter(d => d.status === 'Missing');
-    
+
     setSteps(prevSteps =>
       prevSteps.map((step) => {
         if (step.id === 3) {
@@ -216,15 +272,14 @@ const handleUploadDocument = (id: string, fileName?: string) => {    setIsUpload
     );
   }, [documents]);
 
-const calculateProgress = (): number => {
-  const totalDocs = documents.length;
+  const calculateProgress = (): number => {
+    const totalDocs = documents.length;
+    const uploadedDocs = documents.filter(
+      (doc) => doc.status === 'Uploaded' || doc.status === 'Verified'
+    ).length;
+    return Math.round((uploadedDocs / totalDocs) * 100);
+  };
 
-  const uploadedDocs = documents.filter(
-    (doc) => doc.status === 'Uploaded' || doc.status === 'Verified'
-  ).length;
-
-  return Math.round((uploadedDocs / totalDocs) * 100);
-};
   return (
     <AppContext.Provider value={{
       documents,
@@ -238,12 +293,16 @@ const calculateProgress = (): number => {
       handleDeleteDocument,
       addNotification,
       page,
-setPage,
-citizen,
-setCitizen,
-isSchemeSaved,
-aiResponse,
-setAiResponse,
+      setPage,
+      citizen,
+      setCitizen,
+      isSchemeSaved,
+      aiResponse,
+      setAiResponse,
+      addApplication,
+      applications,
+      savedSchemes,
+      toggleSaveScheme,
     }}>
       {children}
     </AppContext.Provider>

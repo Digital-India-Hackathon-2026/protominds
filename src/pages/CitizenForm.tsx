@@ -1,5 +1,8 @@
+// digital-india-hackathon-2026/protominds/protominds-ad04d013c8c86a6dbf3d3e0fd456ba7e97307d01/src/pages/CitizenForm.tsx
+
 import { getEligibleSchemes } from "../utils/gemini";
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   User, MapPin, Briefcase, IndianRupee,
   Tag, GraduationCap, Wheat, Accessibility, ArrowRight,
@@ -14,7 +17,8 @@ interface FormErrors {
 }
 
 export default function CitizenForm() {
-const { setCitizen, setPage, setAiResponse } = useApp();
+  const { setCitizen, setAiResponse } = useApp();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -51,38 +55,35 @@ const { setCitizen, setPage, setAiResponse } = useApp();
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Button Clicked");
     if (!validate()) return;
 
     setLoading(true);
-    setLoading(true);
 
-try {
-  const aiResponse = await getEligibleSchemes({
-    age: form.age,
-    gender: form.gender,
-    state: form.state,
-    occupation: form.occupation,
-    income: form.annualIncome,
-    category: form.category,
-    student: form.isStudent,
-    farmer: form.isFarmer,
-    disability: form.hasDisability,
-  });
-  console.log("AI Response:", aiResponse);
-  setAiResponse(aiResponse);
+    try {
+      const aiResponse = await getEligibleSchemes({
+        age: form.age,
+        gender: form.gender,
+        state: form.state,
+        occupation: form.occupation,
+        income: form.annualIncome,
+        category: form.category,
+        student: form.isStudent,
+        farmer: form.isFarmer,
+        disability: form.hasDisability,
+      });
+      console.log("AI Response:", aiResponse);
+      setAiResponse(aiResponse);
 
-
-  setCitizen(form);
-
-  setPage("results");
-} catch (error) {
-  console.error("Gemini Error:", error);
-} finally {
-  setLoading(false);
-}
+      setCitizen(form);
+      navigate("/results");
+    } catch (error) {
+      console.error("Gemini Error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const update = (field: keyof CitizenDetails, value: string | number | boolean) => {
@@ -100,7 +101,7 @@ try {
     `input-field ${errors[field] ? 'border-red-400 focus:ring-red-400/30 focus:border-red-400' : ''}`;
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-gradient-to-b from-brand-50/50 via-white to-white dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 gradient-mesh">
+    <div className="pt-24 pb-20 min-h-screen bg-gradient-to-b from-brand-50/50 via-white to-white dark:from-slate-900 dark:via-slate-950 dark:to-slate-955 gradient-mesh">
       <div className="section-container max-w-3xl">
         <div className="text-center mb-10 animate-fade-in-down">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-700/50 mb-4 animate-glow-pulse">
@@ -200,7 +201,7 @@ try {
                   className={inputClass('state')}
                 >
                   <option value="">Select your state</option>
-                  {indianStates.map((s) => <option key={s} value={s}>{s}</option>)}
+                  {(indianStates || []).map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
                 {errors.state && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.state}</p>}
               </div>
@@ -214,7 +215,7 @@ try {
                   className={`${inputClass('district')} ${!form.state ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <option value="">{form.state ? 'Select your district' : 'Select state first'}</option>
-                  {(stateDistricts[form.state] || []).map((d) => <option key={d} value={d}>{d}</option>)}
+                  {((stateDistricts && stateDistricts[form.state]) || []).map((d) => <option key={d} value={d}>{d}</option>)}
                 </select>
                 {errors.district && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.district}</p>}
               </div>
@@ -238,7 +239,7 @@ try {
                   className={inputClass('occupation')}
                 >
                   <option value="">Select your occupation</option>
-                  {occupations.map((o) => <option key={o} value={o}>{o}</option>)}
+                  {(occupations || []).map((o) => <option key={o} value={o}>{o}</option>)}
                 </select>
                 {errors.occupation && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.occupation}</p>}
               </div>

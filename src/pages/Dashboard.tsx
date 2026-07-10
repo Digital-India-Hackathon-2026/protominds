@@ -1,4 +1,7 @@
+// digital-india-hackathon-2026/protominds/protominds-ad04d013c8c86a6dbf3d3e0fd456ba7e97307d01/src/pages/Dashboard.tsx
+
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   CheckCircle2, Bookmark, FileText, CalendarClock,
   TrendingUp, ArrowRight, Sparkles, Clock, Award,
@@ -15,7 +18,8 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export default function Dashboard() {
-  const { citizen, savedSchemes, applications, setPage, toggleSaveScheme } = useApp();
+  const { citizen, savedSchemes, applications, toggleSaveScheme } = useApp();
+  const navigate = useNavigate();
 
   const eligibleResults = useMemo(() => {
     if (!citizen) return [];
@@ -42,37 +46,29 @@ export default function Dashboard() {
       value: eligibleResults.length,
       icon: CheckCircle2,
       color: 'from-emerald-500 to-teal-600',
-      bg: 'bg-emerald-50 dark:bg-emerald-900/20',
-      text: 'text-emerald-600 dark:text-emerald-400',
     },
     {
       label: 'Saved Schemes',
       value: savedSchemes.length,
       icon: Bookmark,
       color: 'from-orange-500 to-amber-600',
-      bg: 'bg-orange-50 dark:bg-orange-900/20',
-      text: 'text-orange-600 dark:text-orange-400',
     },
     {
       label: 'Recent Applications',
       value: applications.length,
       icon: FileText,
       color: 'from-brand-500 to-cyan-600',
-      bg: 'bg-brand-50 dark:bg-brand-900/20',
-      text: 'text-brand-600 dark:text-brand-400',
     },
     {
       label: 'Upcoming Deadlines',
       value: upcomingDeadlines.length,
       icon: CalendarClock,
       color: 'from-violet-500 to-fuchsia-600',
-      bg: 'bg-violet-50 dark:bg-violet-900/20',
-      text: 'text-violet-600 dark:text-violet-400',
     },
   ];
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-gradient-to-b from-brand-50/50 via-white to-white dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 gradient-mesh">
+    <div className="pt-24 pb-20 min-h-screen bg-gradient-to-b from-brand-50/50 via-white to-white dark:from-slate-900 dark:via-slate-950 dark:to-slate-955 gradient-mesh">
       <div className="section-container">
         {/* Header */}
         <div className="mb-8 animate-fade-in-down">
@@ -103,7 +99,7 @@ export default function Dashboard() {
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                 </div>
-                <p className="text-3xl font-extrabold text-slate-800 dark:text-white leading-none animate-count-up">{stat.value}</p>
+                <p className="text-3xl font-extrabold text-slate-800 dark:text-white leading-none">{stat.value}</p>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{stat.label}</p>
               </div>
             );
@@ -118,14 +114,14 @@ export default function Dashboard() {
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-md mx-auto">
               Fill out the citizen details form to see your eligible schemes and personalized dashboard.
             </p>
-            <button onClick={() => setPage('form')} className="btn-primary">
+            <button onClick={() => navigate('/form')} className="btn-primary">
               <User className="w-5 h-5" />
               Fill Your Details
             </button>
           </div>
         )}
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Eligible Schemes */}
           <div className="glass-card p-6 rounded-2xl animate-fade-in-up">
             <div className="flex items-center justify-between mb-5">
@@ -134,7 +130,7 @@ export default function Dashboard() {
                 Eligible Schemes
               </h2>
               {citizen && eligibleResults.length > 0 && (
-                <button onClick={() => setPage('results')} className="text-sm text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1">
+                <button onClick={() => navigate('/results')} className="text-sm text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1">
                   View All <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -217,93 +213,6 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-
-          {/* Recent Applications */}
-          <div className="glass-card p-6 rounded-2xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-sans font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
-                <FileText className="w-5 h-5 text-brand-500" />
-                Recent Applications
-              </h2>
-              {applications.length > 0 && (
-                <span className="badge bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300">
-                  {applications.length} Total
-                </span>
-              )}
-            </div>
-
-            {applications.length === 0 ? (
-              <div className="text-center py-8">
-                <FileText className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  No applications yet. Apply for schemes from the results page.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {applications.slice(0, 5).map((app) => (
-                  <div key={app.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50 hover:shadow-md transition-all">
-                    <div className="w-10 h-10 rounded-xl bg-brand-100 dark:bg-brand-900/40 flex items-center justify-center flex-shrink-0">
-                      <FileText className="w-5 h-5 text-brand-600 dark:text-brand-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-slate-800 dark:text-slate-100 truncate">{app.schemeName}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Applied {new Date(app.appliedAt).toLocaleDateString()}</p>
-                    </div>
-                    <span className={`badge ${
-                      app.status === 'Submitted'
-                        ? 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300'
-                        : app.status === 'Approved'
-                        ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
-                        : 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
-                    }`}>
-                      {app.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Upcoming Deadlines */}
-          <div className="glass-card p-6 rounded-2xl animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-sans font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
-                <CalendarClock className="w-5 h-5 text-violet-500" />
-                Upcoming Deadlines
-              </h2>
-            </div>
-
-            {upcomingDeadlines.length === 0 ? (
-              <div className="text-center py-8">
-                <Clock className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  No upcoming deadlines. Check your eligible schemes to see deadlines.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {upcomingDeadlines.map((scheme) => {
-                  const Icon = iconMap[scheme.icon] || Sparkles;
-                  const daysLeft = Math.ceil((new Date(scheme.lastDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-                  return (
-                    <div key={scheme.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50 hover:shadow-md transition-all">
-                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${scheme.color} flex items-center justify-center flex-shrink-0`}>
-                        <Icon className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm text-slate-800 dark:text-slate-100 truncate">{scheme.shortName}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Last date: {scheme.lastDate}</p>
-                      </div>
-                      <span className={`badge ${daysLeft < 30 ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' : 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'}`}>
-                        {daysLeft}d left
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
         </div>
 
         {/* AI Assistant CTA */}
@@ -315,7 +224,7 @@ export default function Dashboard() {
             <h3 className="font-sans font-bold text-base text-slate-800 dark:text-white">Need help understanding a scheme?</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400">Our AI assistant can explain any scheme, list documents, and guide you through the application process.</p>
           </div>
-          <button onClick={() => setPage('form')} className="btn-secondary flex-shrink-0">
+          <button onClick={() => navigate('/form')} className="btn-secondary flex-shrink-0">
             <ExternalLink className="w-4 h-4" />
             Check Eligibility
           </button>

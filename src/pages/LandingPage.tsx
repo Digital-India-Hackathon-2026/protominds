@@ -1,9 +1,11 @@
+// digital-india-hackathon-2026/protominds/protominds-ad04d013c8c86a6dbf3d3e0fd456ba7e97307d01/src/pages/LandingPage.tsx
+
+import { useNavigate } from 'react-router-dom';
 import {
   Shield, Search, FileText, Bot, CheckCircle2, ArrowRight,
   Users, Award, Clock, Sparkles, TrendingUp, BookOpen, Heart,
   Building2, GraduationCap, Briefcase, Zap, Home as HomeIcon,
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
 import { schemes } from '../data/schemes';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -12,7 +14,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export default function LandingPage() {
-  const { setPage } = useApp();
+  const navigate = useNavigate();
 
   const features = [
     { icon: Search, title: 'Smart Eligibility Check', desc: 'Answer a few questions and instantly discover which government schemes you qualify for.', color: 'from-brand-500 to-cyan-600' },
@@ -61,12 +63,12 @@ export default function LandingPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <button onClick={() => setPage('form')} className="btn-primary group">
+                <button onClick={() => navigate('/form')} className="btn-primary group">
                   <Search className="w-5 h-5" />
                   Check Eligibility
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
-                <button onClick={() => setPage('dashboard')} className="btn-secondary">
+                <button onClick={() => navigate('/dashboard')} className="btn-secondary">
                   <TrendingUp className="w-5 h-5" />
                   View Dashboard
                 </button>
@@ -101,7 +103,7 @@ export default function LandingPage() {
 
                   <div className="space-y-3">
                     {schemes.slice(0, 4).map((scheme, i) => (
-                      <div key={scheme.id} className={`flex items-center gap-3 p-3 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50 hover:scale-[1.03] hover:shadow-md hover:border-brand-300 dark:hover:border-brand-600 transition-all duration-300 stagger-${i + 1} animate-fade-in-up`}>
+                      <div key={scheme.id} className={`flex items-center gap-3 p-3 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/50 dark:border-slate-700/50 hover:scale-[1.03] hover:shadow-md hover:border-brand-300 dark:hover:border-brand-600 transition-all duration-300 callback-stagger animate-fade-in-up`}>
                         <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${scheme.color} flex items-center justify-center flex-shrink-0 shadow-md`}>
                           {(() => {
                             const Icon = iconMap[scheme.icon] || Sparkles;
@@ -119,7 +121,7 @@ export default function LandingPage() {
 
                   <div className="mt-4 p-3 rounded-xl bg-gradient-to-r from-brand-50 to-accent-50 dark:from-brand-900/30 dark:to-accent-900/20 border border-brand-200/50 dark:border-brand-700/30">
                     <div className="flex items-center gap-2">
-                      <Bot className="w-4 h-4 text-brand-600 dark:text-brand-400 animate-wiggle" />
+                      <Bot className="w-4 h-4 text-brand-600 dark:text-brand-400" />
                       <p className="text-xs text-brand-700 dark:text-brand-300 font-medium">AI Assistant: "You are eligible for 4 schemes!"</p>
                     </div>
                   </div>
@@ -293,7 +295,7 @@ export default function LandingPage() {
             <p className="text-cyan-100 text-lg mb-8 max-w-xl mx-auto">
               Take the first step towards accessing the benefits you are entitled to. It takes less than 2 minutes.
             </p>
-            <button onClick={() => setPage('form')} className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white text-brand-700 font-semibold shadow-xl hover:shadow-2xl hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 group">
+            <button onClick={() => navigate('/form')} className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white text-brand-700 font-semibold shadow-xl hover:shadow-2xl hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 group">
               <Search className="w-5 h-5" />
               Check My Eligibility Now
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

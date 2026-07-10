@@ -1,4 +1,7 @@
+// digital-india-hackathon-2026/protominds/protominds-ad04d013c8c86a6dbf3d3e0fd456ba7e97307d01/src/pages/ResultsPage.tsx
+
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   CheckCircle2, XCircle, FileText, Award, Calendar, ExternalLink,
   Bookmark, BookmarkCheck, ArrowLeft, Sparkles, ChevronDown,
@@ -14,7 +17,8 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export default function ResultsPage() {
-  const { citizen, setPage, toggleSaveScheme, aiResponse, isSchemeSaved } = useApp();
+  const { citizen, toggleSaveScheme, aiResponse, isSchemeSaved } = useApp();
+  const navigate = useNavigate();
   const [filter, setFilter] = useState<'eligible' | 'all'>('eligible');
   const [search, setSearch] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -47,7 +51,7 @@ export default function ResultsPage() {
           <Info className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-slate-600 dark:text-slate-300 mb-2">No citizen details found</h2>
           <p className="text-slate-500 dark:text-slate-400 mb-6">Please fill the form first to check eligibility.</p>
-          <button onClick={() => setPage('form')} className="btn-primary">
+          <button onClick={() => navigate('/form')} className="btn-primary">
             <FileText className="w-5 h-5" />
             Fill the Form
           </button>
@@ -74,7 +78,7 @@ export default function ResultsPage() {
         {/* Header */}
         <div className="mb-8 animate-fade-in-down">
           <button
-            onClick={() => setPage('form')}
+            onClick={() => navigate('/form')}
             className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -164,7 +168,7 @@ export default function ResultsPage() {
                 onToggle={() => setExpandedId(expandedId === result.scheme.id ? null : result.scheme.id)}
                 saved={isSchemeSaved(result.scheme.id)}
                 onSave={() => toggleSaveScheme(result.scheme.id)}
-                onApply={() => setPage("documents")}
+                onApply={() => navigate("/documents")}
               />
             ))}
           </div>
@@ -204,6 +208,12 @@ function SchemeCard({
 }) {
   const { scheme, isEligible, matchScore, matchedCriteria, unmatchedCriteria } = result;
   const Icon = iconMap[scheme.icon] || Sparkles;
+
+  const handleOfficialPortalApply = () => {
+    if (scheme.applyUrl) {
+      window.open(scheme.applyUrl, "_blank", "noopener,noreferrer");
+    }
+  };
 
   return (
     <div
@@ -346,26 +356,45 @@ function SchemeCard({
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-2 pt-2">
-              <button
-                onClick={onApply}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-brand-600 to-brand-400 hover:from-brand-700 hover:to-brand-500 shadow-md shadow-brand-500/20 hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95"
-              >
-                <ExternalLink className="w-4 h-4" />
-                Apply Now
-              </button>
-              <button
-                onClick={onSave}
-                className={`inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all active:scale-95 ${
-                  saved
-                    ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800/40'
-                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-700'
-                }`}
-              >
-                {saved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
-                {saved ? 'Saved' : 'Save'}
-              </button>
+            {/* Actions Panel */}
+            <div className="flex flex-col gap-2 pt-2">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={onApply}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-brand-600 to-brand-400 hover:from-brand-700 hover:to-brand-500 shadow-md shadow-brand-500/20 hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95"
+                >
+                  <FileText className="w-4 h-4" />
+                  Apply on JanMitra
+                </button>
+                <button
+                  onClick={onSave}
+                  className={`inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all active:scale-95 ${
+                    saved
+                      ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800/40'
+                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-700'
+                  }`}
+                >
+                  {saved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
+                  {saved ? 'Saved' : 'Save'}
+                </button>
+              </div>
+
+              {scheme.applyUrl ? (
+                <button
+                  onClick={handleOfficialPortalApply}
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 shadow-sm hover:-translate-y-0.5 transition-all active:scale-95"
+                >
+                  <ExternalLink className="w-4 h-4 text-brand-500" />
+                  Apply on Official Portal
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-400 dark:text-slate-600 bg-slate-100/50 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/50 cursor-not-allowed"
+                >
+                  Official application portal not available.
+                </button>
+              )}
             </div>
           </div>
         )}
